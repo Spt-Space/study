@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>知识点汇总系统</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-weight: 400;
+			font-family: fillet, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+		}
+		.fillet {
+			font-family:fillet;
+		}
+
+		@font-face {
+		 	font-family: 'fillet';
+		 	src:url('fillet2.ttf') format('truetype');
+		}
+		:root {
+			--primary-color: #3498db;
+			--primary-light: #e3f2fd;
+			--secondary-color: #2ecc71;
+			--accent-color: #e74c3c;
+			--light-color: #f9f9f9;
+			--dark-color: #2c3e50;
+			--border-color: #e1e5e9;
+			--shadow-light: 0 2px 8px rgba(0, 0, 0, 0.06);
+			--shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.08);
+			--shadow-heavy: 0 8px 24px rgba(0, 0, 0, 0.12);
+			--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			--radius-sm: 6px;
+			--radius-md: 8px;
+			--radius-lg: 12px;
+			--radius-xl: 16px;
+		}
+		
+		body {
+			background-color: #f8fafc;
+			color: #334155;
+			overflow-x: hidden;
+			line-height: 1.6;
+		}
+		
+		/* 首页样式 */
+		.home-page {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			min-height: 100vh;
+			padding: 20px;
+			background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+		}
+		
+		.logo {
+			text-align: center;
+			margin-bottom: 50px;
+			max-width: 800px;
+		}
+		
+		.logo h1 {
+			font-size: 2.8rem;
+			background: linear-gradient(135deg, var(--dark-color) 0%, var(--primary-color) 100%);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			margin-bottom: 15px;
+			letter-spacing: -0.5px;
+		}
+		
+		.logo p {
+			font-size: 1.1rem;
+			color: #64748b;
+			line-height: 1.6;
+		}
+		
+		.subjects-grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 20px;
+			max-width: 900px;
+			width: 100%;
+			margin-bottom: 50px;
+		}
+		
+		.subject-btn {
+			background: white;
+			border: none;
+			border-radius: var(--radius-lg);
+			padding: 32px 20px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			transition: var(--transition);
+			box-shadow: var(--shadow-light);
+			position: relative;
+			overflow: hidden;
+		}
+		
+		.subject-btn::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 4px;
+			background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+			opacity: 0;
+			transition: var(--transition);
+		}
+		
+		.subject-btn:hover {
+			transform: translateY(-4px);
+			box-shadow: var(--shadow-heavy);
+		}
+		
+		.subject-btn:hover::before {
+			opacity: 1;
+		}
+		
+		.subject-btn i {
+			font-size: 2.8rem;
+			margin-bottom: 18px;
+		}
+		
+		.subject-btn h3 {
+			font-size: 1.3rem;
+			color: var(--dark-color);
+		}
+		
+		.instructions {
+			background: white;
+			padding: 20px 25px;
+			border-radius: var(--radius-lg);
+			box-shadow: var(--shadow-light);
+			max-width: 900px;
+			width: 100%;
+		}
+		
+		.instructions p {
+			margin: 8px 0;
+			color: #64748b;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		
+		.instructions i {
+			color: var(--primary-color);
+		}
+		
+		.chinese { color: #e74c3c; }
+		.math { color: #3498db; }
+		.english { color: #2ecc71; }
+		.physics { color: #9b59b6; }
+		.chemistry { color: #e67e22; }
+		
+		/* 切换动画 */
+		.transition-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-color) 100%);
+			z-index: 2000;
+			display: none;
+			justify-content: center;
+			align-items: center;
+			opacity: 0;
+			transition: opacity 0.5s ease;
+		}
+		
+		.transition-text {
+			color: white;
+			font-size: 1.8rem;
+			display: flex;
+			align-items: center;
+			gap: 15px;
+		}
+		
+		/* 知识点页面 */
+		.knowledge-page {
+			display: none;
+			min-height: 100vh;
+		}
+		
+		.page-header {
+			display: flex;
+			align-items: center;
+			padding: 18px 25px;
+			background-color: white;
+			box-shadow: var(--shadow-light);
+			z-index: 100;
+			position: sticky;
+			top: 0;
+			border-bottom: 1px solid var(--border-color);
+		}
+		
+		.header-btns {
+			display: flex;
+			gap: 12px;
+		}
+		
+		.header-btn {
+			background-color: var(--light-color);
+			border: none;
+			width: 40px;
+			height: 40px;
+			border-radius: var(--radius-sm);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			transition: var(--transition);
+			font-size: 1.1rem;
+			color: #64748b;
+		}
+		
+		.header-btn:hover {
+			background-color: var(--primary-color);
+			color: white;
+			transform: scale(1.05);
+		}
+		
+		.subject-title {
+			margin-left: 25px;
+			font-size: 1.4rem;
+			color: var(--dark-color);
+		}
+		
+		.page-content {
+			display: flex;
+			height: calc(100vh - 76px);
+		}
+		
+		/* 目录样式 - 美化 */
+		.directory-container {
+			width: 320px;
+			background-color: white;
+			border-right: 1px solid var(--border-color);
+			display: flex;
+			flex-direction: column;
+			transition: var(--transition);
+			overflow: hidden;
+		}
+		
+		.directory-container.hidden {
+			width: 0;
+			border-right: none;
+		}
+		
+		.directory-header {
+			padding: 20px 25px;
+			border-bottom: 1px solid var(--border-color);
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+		}
+		
+		.directory-header h3 {
+			color: var(--dark-color);
+			font-size: 1.1rem;
+			letter-spacing: 0.5px;
+		}
+		
+		.directory-list {
+			flex: 1;
+			overflow-y: auto;
+			padding: 20px;
+		}
+		
+		.folder {
+			margin-bottom: 6px;
+			margin-top: 6px;
+		}
+		
+		.folder-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 14px 16px;
+			background-color: #f8fafc;
+			border-radius: var(--radius-md);
+			cursor: pointer;
+			transition: var(--transition);
+			border: 1px solid #f1f5f9;
+		}
+		
+		.folder-header:hover {
+			background-color: #f1f5f9;
+			border-color: var(--border-color);
+		}
+		
+		.folder-name {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+		
+		.folder-name i {
+			font-size: 1rem;
+			color: var(--primary-color);
+		}
+		
+		.folder-name span {
+			font-size: 0.95rem;
+			color: var(--dark-color);
+		}
+		
+		.folder-toggle {
+			color: #94a3b8;
+			font-size: 0.9rem;
+			transition: var(--transition);
+		}
+		
+		.folder-content {
+			padding-left: 20px;
+			max-height: 0;
+			overflow: hidden;
+			transition: all 0.4s ease;
+		}
+		
+		.folder-content.expanded {
+			height:auto;
+			max-height: 1000px;
+		}
+		
+		/* 嵌套文件夹样式 - 更清晰的层级 */
+		.folder .folder {
+			margin-bottom: 0px;
+		}
+		
+		.folder .folder .folder-header {
+			background-color: #f1f5f9;
+			padding: 12px 16px;
+		}
+		
+		.folder .folder .folder-name {
+			font-size: 0.9rem;
+		}
+		
+		.folder .folder .folder-name i {
+			font-size: 0.9rem;
+		}
+		
+		.folder .folder .folder-content {
+			padding-left: 16px;
+		}
+		
+		/* 知识点项目 */
+		.knowledge-item {
+			padding: 12px 16px;
+			margin: 6px 0;
+			border-radius: var(--radius-md);
+			cursor: pointer;
+			transition: var(--transition);
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			font-size: 0.9rem;
+			color: #475569;
+			border: 1px solid transparent;
+			line-height: 1.5;
+		}
+		
+		.knowledge-item:hover {
+			background-color: #f1f7ff;
+			border-color: #dbeafe;
+			color: var(--primary-color);
+		}
+		
+		.knowledge-item.active {
+			background-color: var(--primary-light);
+			color: var(--primary-color);
+			border-color: var(--primary-color);
+		}
+		
+		.knowledge-item i {
+			font-size: 0.85rem;
+		}
+		
+		/* 知识点内容区域 */
+		.knowledge-content {
+			flex: 1;
+			padding: 30px 40px;
+			overflow-y: auto;
+			background-color: #f8fafc;
+			transition: var(--transition);
+		}
+		
+		.knowledge-content.fullscreen {
+			padding: 40px 60px;
+		}
+		
+		.content-title {
+			font-size: 2.2rem;
+			margin-bottom: 25px;
+			color: var(--dark-color);
+			padding-bottom: 20px;
+			border-bottom: 2px solid var(--primary-color);
+			line-height: 1.3;
+		}
+		
+		.content-body {
+			line-height: 1.8;
+		}
+		
+		.content-section {
+			margin-bottom: 30px;
+			background-color: white;
+			padding: 30px;
+			border-radius: var(--radius-lg);
+			box-shadow: var(--shadow-light);
+			border: 1px solid var(--border-color);
+		}
+		
+		.content-section h3 {
+			font-size: 1.5rem;
+			margin-bottom: 20px;
+			color: var(--dark-color);
+		}
+		
+		.content-section p {
+			margin-bottom: 18px;
+			font-size: 1.05rem;
+			color: #475569;
+		}
+		
+		.content-section ul, .content-section ol {
+			padding-left: 30px;
+			margin-bottom: 20px;
+		}
+		
+		.content-section li {
+			margin-bottom: 10px;
+			font-size: 1.05rem;
+			color: #475569;
+		}
+		
+		.formula {
+			background-color: #f8f9fa;
+			padding: 20px;
+			border-radius: var(--radius-md);
+			font-family: 'Cambria', 'Times New Roman', serif;
+			margin: 20px 0;
+			text-align: center;
+			font-size: 1.3rem;
+			border-left: 4px solid var(--primary-color);
+		}
+		
+		.example {
+			background-color: #fff8e1;
+			border-left: 4px solid #ffc107;
+			padding: 20px;
+			margin: 20px 0;
+			border-radius: var(--radius-md);
+		}
+		
+		/* 滚动条美化 */
+		::-webkit-scrollbar {
+			width: 6px;
+		}
+		
+		::-webkit-scrollbar-track {
+			background: #f1f5f9;
+		}
+		
+		::-webkit-scrollbar-thumb {
+			background: #cbd5e1;
+			border-radius: 3px;
+		}
+		
+		::-webkit-scrollbar-thumb:hover {
+			background: #94a3b8;
+		}
+		
+		/* 加载动画 */
+		.loader {
+			width: 20px;
+			height: 20px;
+			border: 3px solid rgba(255,255,255,0.3);
+			border-radius: 50%;
+			border-top: 3px solid rgba(255,255,255,1.0);
+			animation: spin 1s ease-in-out infinite;
+		}
+		
+		@keyframes spin {
+			to { transform: rotate(360deg); }
+		}
+		
+		@keyframes fadeIn {
+			0% {opacity: 0;}
+			100% {opacity: 1;}
+		}
+		
+		.fade-in {
+			animation: fadeIn 0.5s ease;
+		}
+		
+		/* 手机端样式 */
+		@media (max-width: 768px) {
+			.subjects-grid {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 15px;
+			}
+			
+			.page-content {
+				flex-direction: column;
+			}
+			
+			.directory-container {
+				width: 100%;
+				height: 0;
+				position: fixed;
+				top: 0;
+				left: 0;
+				z-index: 500;
+				overflow: hidden;
+				box-shadow: var(--shadow-heavy);
+			}
+			
+			.directory-container.mobile-open {
+				height: 100vh;
+				overflow-y: auto;
+			}
+			
+			.knowledge-content {
+				width: 100%;
+				padding: 20px;
+			}
+			
+			.subject-btn {
+				padding: 25px 15px;
+			}
+			
+			.subject-btn i {
+				font-size: 2.2rem;
+			}
+			
+			.subject-btn h3 {
+				font-size: 1.1rem;
+			}
+			
+			.logo h1 {
+				font-size: 2rem;
+			}
+			
+			.content-title {
+				font-size: 1.8rem;
+			}
+			
+			.content-section {
+				padding: 20px;
+			}
+			
+			.knowledge-content.fullscreen {
+				padding: 20px;
+			}
+			
+			.instructions {
+				padding: 15px;
+			}
+		}
+		
+		@media (max-width: 480px) {
+			.subjects-grid {
+				grid-template-columns: 1fr;
+			}
+			
+			.logo h1 {
+				font-size: 1.8rem;
+			}
+			
+			.subject-btn i {
+				font-size: 2rem;
+			}
+			
+			.content-title {
+				font-size: 1.6rem;
+			}
+			
+			.content-section {
+				padding: 15px;
+			}
+		}
+		
+		/* 空状态 */
+		.empty-state {
+			text-align: center;
+			padding: 60px 20px;
+			color: #94a3b8;
+		}
+		
+		.empty-state i {
+			font-size: 3rem;
+			margin-bottom: 20px;
+			opacity: 0.5;
+		}
+		
+		.empty-state h3 {
+			font-size: 1.3rem;
+			margin-bottom: 10px;
+			color: #64748b;
+		}
+	</style>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+	<!-- 首页 -->
+	<div class="home-page" id="homePage">
+		<div class="logo">
+			<h1>知识点汇总系统</h1>
+			<p>精选语文、数学、英语、物理、化学等学科核心知识点，系统化学习，提升学习效率</p>
+		</div>
+		
+		<div class="subjects-grid">
+			<button class="subject-btn chinese-btn" data-subject="chinese">
+				<i class="fas fa-book-open chinese"></i>
+				<h3>语文</h3>
+			</button>
+			
+			<button class="subject-btn math-btn" data-subject="math">
+				<i class="fas fa-calculator math"></i>
+				<h3>数学</h3>
+			</button>
+			
+			<button class="subject-btn english-btn" data-subject="english">
+				<i class="fas fa-language english"></i>
+				<h3>英语</h3>
+			</button>
+			
+			<button class="subject-btn physics-btn" data-subject="physics">
+				<i class="fas fa-atom physics"></i>
+				<h3>物理</h3>
+			</button>
+			
+			<button class="subject-btn chemistry-btn" data-subject="chemistry">
+				<i class="fas fa-flask chemistry"></i>
+				<h3>化学</h3>
+			</button>
+			
+			<button class="subject-btn web-btn" data-subject="web">
+				<i class="fas fa-info-circle" style="color: #2c3e50;"></i>
+				<h3>网页相关</h3>
+			</button>
+		</div>
+		
+		<div class="instructions">
+			<p><i class="fas fa-mobile-alt"></i> 手机端：点击目录图标展开导航，选择知识点后目录自动隐藏</p>
+			<p><i class="fas fa-laptop"></i> 电脑端：左侧为可折叠目录，右侧显示知识点内容，支持全屏模式</p>
+		</div>
+	</div>
+	
+	<!-- 切换动画层 -->
+	<div class="transition-overlay" id="transitionOverlay">
+		<div class="transition-text" id="transitionText">正在加载<div class="loader"></div></div>
+	</div>
+	
+	<!-- 知识点页面 -->
+	<div class="knowledge-page" id="knowledgePage">
+		<div class="page-header">
+			<div class="header-btns">
+				<button class="header-btn" id="backToHomeBtn" title="返回首页">
+					<i class="fas fa-home"></i>
+				</button>
+				<button class="header-btn" id="toggleDirBtn" title="显示/隐藏目录">
+					<i class="fas fa-list"></i>
+				</button>
+				<button class="header-btn" id="fullscreenBtn" title="全屏显示">
+					<i class="fas fa-expand"></i>
+				</button>
+			</div>
+			<div class="subject-title" id="subjectTitle">知识点页面</div>
+		</div>
+		
+		<div class="page-content">
+			<!-- 目录区域 -->
+			<div class="directory-container" id="directoryContainer">
+				<div class="directory-header">
+					<h3>目录</h3>
+					<button class="header-btn mobile-close-btn" id="mobileCloseBtn">
+						<i class="fas fa-times"></i>
+					</button>
+				</div>
+				
+				<div class="directory-list" id="directoryList">
+					<!-- 目录内容将通过JavaScript动态生成 -->
+				</div>
+			</div>
+			
+			<!-- 知识点内容区域 -->
+			<div class="knowledge-content" id="knowledgeContent">
+				<div class="content-title" id="contentTitle">请从左侧目录选择知识点</div>
+				<div class="content-body" id="contentBody">
+					<div class="content-section">
+						<h3>欢迎使用知识点汇总系统</h3>
+						<p>本系统提供了语文、数学、英语、物理、化学等学科的知识点汇总，采用清晰的目录结构和美观的界面设计，帮助您高效学习和复习。</p>
+						<p>系统特点：</p>
+						<ul>
+							<li><strong>清晰的目录结构</strong>：支持多层嵌套目录，知识点组织有序</li>
+							<li><strong>响应式设计</strong>：适配手机、平板和电脑等多种设备</li>
+							<li><strong>美观的界面</strong>：现代化的设计风格，舒适的阅读体验</li>
+							<li><strong>便捷的操作</strong>：目录可折叠展开，支持全屏阅读模式</li>
+						</ul>
+						<p>请在左侧目录中选择您要查看的知识点，开始您的学习之旅。</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// 全局变量
+		let currentSubject = '';
+		let isDirectoryVisible = true;
+		let isContentFullscreen = false;
+		let isMobile = window.innerWidth <= 768;
+		
+		// DOM元素
+		const homePage = document.getElementById('homePage');
+		const knowledgePage = document.getElementById('knowledgePage');
+		const transitionOverlay = document.getElementById('transitionOverlay');
+		const transitionText = document.getElementById('transitionText');
+		const backToHomeBtn = document.getElementById('backToHomeBtn');
+		const toggleDirBtn = document.getElementById('toggleDirBtn');
+		const fullscreenBtn = document.getElementById('fullscreenBtn');
+		const mobileCloseBtn = document.getElementById('mobileCloseBtn');
+		const directoryContainer = document.getElementById('directoryContainer');
+		const knowledgeContent = document.getElementById('knowledgeContent');
+		const subjectTitle = document.getElementById('subjectTitle');
+		const contentTitle = document.getElementById('contentTitle');
+		const contentBody = document.getElementById('contentBody');
+		const directoryList = document.getElementById('directoryList');
+		
+		// 科目数据 - 优化后的嵌套结构
+		const subjectsData = {
+			chinese: {
+				name: "语文",
+				color: "#e74c3c",
+				folders: [
+					{
+						name: "古诗词",
+						icon: "fas fa-scroll",
+						items: [
+							{ id: "chinese-poem-1", title: "《静夜思》赏析", content: "李白《静夜思》是唐代五言绝句的代表作，通过描绘月夜思乡之情，表达了游子对故乡的深深思念。这首诗语言简练，意境深远，是李白诗歌中的经典之作。<p><img class src=\"https://mc-spt.simdif.com/images/th/sd_67b8671514948.jpg\"></p>" },
+							{ id: "chinese-poem-2", title: "《春晓》解读", content: "孟浩然《春晓》以春晨为背景，通过鸟鸣、风雨、落花等意象，抒发了对春天的热爱和珍惜之情。诗歌语言清新自然，富有生活气息。" },
+							{ id: "chinese-poem-3", title: "宋词特点", content: "宋词是宋代文学的代表，分为婉约派和豪放派。婉约派以柳永、李清照为代表，风格柔美婉约；豪放派以苏轼、辛弃疾为代表，风格豪迈奔放。" }
+						]
+					},
+					{
+						name: "现代文阅读",
+						icon: "fas fa-book-reader",
+						items: [
+							{ id: "chinese-modern-1", title: "记叙文六要素", content: "记叙文的六要素包括：时间、地点、人物、起因、经过、结果。掌握这六要素有助于理解记叙文的结构和内容，提高阅读理解能力。" },
+							{ id: "chinese-modern-2", title: "议论文三要素", content: "议论文的三要素是：论点、论据、论证。论点是作者的观点，论据是支持论点的材料，论证是用论据证明论点的过程。" }
+						]
+					},
+					{
+						name: "作文技巧",
+						icon: "fas fa-pen-fancy",
+						items: [
+							{ id: "chinese-writing-1", title: "开头技巧", content: "作文开头要吸引读者，常见方法有：开门见山、设置悬念、引用名言、描绘场景等。一个好的开头能激发读者阅读兴趣。" },
+							{ id: "chinese-writing-2", title: "结尾技巧", content: "作文结尾要呼应开头，升华主题。常见方法有：总结全文、发出呼吁、留下余味、呼应开头等。好的结尾能给读者留下深刻印象。" }
+						]
+					}
+				]
+			},
+			math: {
+				name: "数学",
+				color: "#3498db",
+				folders: [
+					{
+						name: "第23章 四边形",
+						icon: "fas fa-shapes",
+						items: [
+							{ 
+								name: "23.1 多边形", 
+								icon: "fas fa-draw-polygon",
+								items: [
+									{ id: "math-23-1-1", title: "多边形的定义", content: "多边形是由三条或三条以上的线段首尾顺次连接所组成的封闭图形。根据边数不同，多边形可分为三角形、四边形、五边形等。" },
+									{ id: "math-23-1-2", title: "多边形的内角和", content: "n边形的内角和公式为：(n-2)×180°。例如，三角形的内角和为180°，四边形的内角和为360°。" }
+								]
+							},
+							{ 
+								name: "23.2 平行四边形", 
+								icon: "fas fa-square",
+								items: [
+									{ id: "math-23-2-1", title: "平行四边形的性质", content: "平行四边形的对边平行且相等，对角相等，邻角互补，对角线互相平分。这些性质是解决平行四边形问题的基础。" },
+									{ id: "math-23-2-2", title: "平行四边形的判定", content: "判定一个四边形是平行四边形的方法：1.两组对边分别平行；2.两组对边分别相等；3.一组对边平行且相等；4.对角线互相平分。" },
+									{ 
+										name: "特殊平行四边形", 
+										icon: "fas fa-th",
+										items: [
+											{ id: "math-23-2-3", title: "矩形", content: "矩形是有一个角是直角的平行四边形。矩形除具有平行四边形的性质外，还有对角线相等、四个角都是直角等性质。" },
+											{ id: "math-23-2-4", title: "菱形", content: "菱形是有一组邻边相等的平行四边形。菱形除具有平行四边形的性质外，还有四条边相等、对角线互相垂直等性质。" },
+											{ id: "math-23-2-5", title: "正方形", content: "正方形既是矩形又是菱形，具有矩形和菱形的所有性质，是最特殊的平行四边形。" }
+										]
+									}
+								]
+							},
+							{ id: "math-23-3", title: "梯形的性质", content: "梯形是只有一组对边平行的四边形。平行的一组对边称为底，不平行的一组对边称为腰。等腰梯形的两腰相等，同一底上的两个角相等。" }
+						]
+					},
+					{
+						name: "第24章 平面直角坐标系",
+						icon: "fas fa-map-marked-alt",
+						items: [
+							{ id: "math-24-1", title: "坐标系的建立", content: "平面直角坐标系由两条互相垂直、原点重合的数轴组成。水平方向的数轴称为x轴，垂直方向的数轴称为y轴。" },
+							{ id: "math-24-2", title: "点的坐标", content: "平面内任意一点P的位置可以用有序实数对(x,y)来表示，其中x是点P到y轴的距离，y是点P到x轴的距离。" },
+							{ 
+								name: "函数图像", 
+								icon: "fas fa-chart-line",
+								items: [
+									{ id: "math-24-3-1", title: "一次函数图像", content: "一次函数y=kx+b的图像是一条直线。k是斜率，表示直线的倾斜程度；b是截距，表示直线与y轴交点的纵坐标。" },
+									{ id: "math-24-3-2", title: "二次函数图像", content: "二次函数y=ax²+bx+c的图像是一条抛物线。a决定抛物线的开口方向和大小，顶点坐标可通过公式计算。" }
+								]
+							}
+						]
+					},
+					{
+						name: "概率与统计",
+						icon: "fas fa-chart-bar",
+						items: [
+							{ id: "math-prob-1", title: "概率计算", content: "概率P(A)=事件A发生的次数/所有可能结果的次数。互斥事件的概率加法公式为P(A∪B)=P(A)+P(B)。" },
+							{ id: "math-prob-2", title: "统计图表", content: "常见的统计图表包括条形图、折线图、扇形图、直方图等。条形图适合比较数量，折线图适合表示变化趋势。" }
+						]
+					}
+				]
+			},
+			english: {
+				name: "英语",
+				color: "#2ecc71",
+				folders: [
+					{
+						name: "语法",
+						icon: "fas fa-spell-check",
+						items: [
+							{ id: "english-grammar-1", title: "时态", content: "英语有12种时态，最常用的有：一般现在时、现在进行时、一般过去时、现在完成时、一般将来时等。每种时态有特定的结构和用法。" },
+							{ id: "english-grammar-2", title: "条件句", content: "条件句分为零条件句、第一条件句、第二条件句和第三条件句，分别表示不同的条件和结果关系。" }
+						]
+					},
+					{
+						name: "词汇",
+						icon: "fas fa-book",
+						items: [
+							{ id: "english-vocabulary-1", title: "词根词缀", content: "英语单词由词根、前缀和后缀组成。了解常见词根词缀有助于扩大词汇量，例如un-表示否定，-able表示能够。" },
+							{ id: "english-vocabulary-2", title: "同义词辨析", content: "英语中有许多近义词，如big/large, small/little, begin/start等。它们有时可以互换，但有时有细微差别。" }
+						]
+					},
+					{
+						name: "写作",
+						icon: "fas fa-edit",
+						items: [
+							{ id: "english-writing-1", title: "书信格式", content: "英语书信包括日期、称呼、正文、结束语和签名。正式书信和 informal书信的格式和用语有所不同。" },
+							{ id: "english-writing-2", title: "议论文结构", content: "英语议论文通常包括引言、主体段落和结论。主体段落应有主题句、支持句和结论句。" }
+						]
+					}
+				]
+			},
+			physics: {
+				name: "物理",
+				color: "#9b59b6",
+				folders: [
+					{
+						name: "力学",
+						icon: "fas fa-weight-hanging",
+						items: [
+							{ id: "physics-mechanics-1", title: "牛顿三定律", content: "第一定律：物体保持静止或匀速直线运动，除非受到外力作用。第二定律：F=ma。第三定律：作用力与反作用力大小相等，方向相反。" },
+							{ id: "physics-mechanics-2", title: "能量守恒", content: "能量既不会凭空产生，也不会凭空消失，只会从一种形式转化为另一种形式，或者从一个物体转移到其他物体。" }
+						]
+					},
+					{
+						name: "电磁学",
+						icon: "fas fa-bolt",
+						items: [
+							{ id: "physics-electro-1", title: "欧姆定律", content: "导体中的电流与导体两端的电压成正比，与导体的电阻成反比。公式为I=U/R。" },
+							{ id: "physics-electro-2", title: "电磁感应", content: "当导体在磁场中运动切割磁感线时，导体中会产生感应电动势。法拉第电磁感应定律是电磁学的基本定律之一。" }
+						]
+					},
+					{
+						name: "光学",
+						icon: "fas fa-lightbulb",
+						items: [
+							{ id: "physics-optics-1", title: "光的反射", content: "光的反射定律：入射光线、反射光线和法线在同一平面内，入射角等于反射角。" },
+							{ id: "physics-optics-2", title: "光的折射", content: "光从一种介质斜射入另一种介质时，传播方向发生改变。折射定律由斯涅尔定律描述：n₁sinθ₁=n₂sinθ₂。" }
+						]
+					}
+				]
+			},
+			chemistry: {
+				name: "化学",
+				color: "#e67e22",
+				folders: [
+					{
+						name: "无机化学",
+						icon: "fas fa-atom",
+						items: [
+							{ id: "chemistry-inorganic-1", title: "元素周期表", content: "元素周期表按照原子序数排列，分为周期和族。元素性质随原子序数增加呈现周期性变化。" },
+							{ id: "chemistry-inorganic-2", title: "化学键", content: "化学键包括离子键、共价键和金属键。离子键由电子转移形成，共价键由电子共享形成。" }
+						]
+					},
+					{
+						name: "有机化学",
+						icon: "fas fa-vial",
+						items: [
+							{ id: "chemistry-organic-1", title: "烃类", content: "只含碳氢两种元素的化合物称为烃。根据结构可分为烷烃、烯烃、炔烃和芳香烃。" },
+							{ id: "chemistry-organic-2", title: "官能团", content: "决定有机化合物化学特性的原子或原子团称为官能团，如羟基(-OH)、羧基(-COOH)、氨基(-NH₂)等。" }
+						]
+					},
+					{
+						name: "化学反应",
+						icon: "fas fa-vial",
+						items: [
+							{ id: "chemistry-reaction-1", title: "氧化还原反应", content: "有电子转移的化学反应称为氧化还原反应。失去电子的过程是氧化，得到电子的过程是还原。" },
+							{ id: "chemistry-reaction-2", title: "化学平衡", content: "可逆反应中，正反应速率等于逆反应速率时，体系达到化学平衡。平衡常数K表示平衡时各物质浓度关系。" }
+						]
+					}
+				]
+			},
+			web: {
+				name: "网页相关",
+				color: "#2c3e50",
+				folders: [
+					{
+						name: "使用说明",
+						icon: "fas fa-info-circle",
+						items: [
+							{ id: "web-guide-1", title: "基本操作", content: "1. 在首页选择科目进入知识点页面<br>2. 左侧目录可折叠展开<br>3. 点击知识点可在右侧查看内容<br>4. 使用左上角按钮控制目录显示和全屏模式" },
+							{ id: "web-guide-2", title: "设备适配", content: "本网页适配不同设备：<br>• 电脑/平板：左侧目录，右侧内容<br>• 手机：目录全屏显示，点击知识点后自动隐藏" }
+						]
+					},
+					{
+						name: "技术信息",
+						icon: "fas fa-code",
+						items: [
+							{ id: "web-tech-1", title: "实现技术", content: "本网页使用HTML5、CSS3和原生JavaScript实现，响应式设计，无外部框架依赖。" },
+							{ id: "web-tech-2", title: "功能特点", content: "1. 科目切换动画效果<br>2. 目录可折叠展开<br>3. 响应式布局适配多设备<br>4. 知识点内容独立滚动" }
+						]
+					}
+				]
+			}
+		};
+		
+		// 初始化函数
+		function init() {
+			// 绑定科目按钮点击事件
+			document.querySelectorAll('.subject-btn').forEach(btn => {
+				btn.addEventListener('click', function() {
+					const subject = this.dataset.subject || 'web';
+					switchToSubject(subject);
+				});
+			});
+			
+			// 绑定返回首页按钮
+			backToHomeBtn.addEventListener('click', goBackToHome);
+			
+			// 绑定目录显示/隐藏按钮
+			toggleDirBtn.addEventListener('click', toggleDirectory);
+			
+			// 绑定全屏按钮
+			fullscreenBtn.addEventListener('click', toggleFullscreen);
+			
+			// 绑定手机端目录关闭按钮
+			mobileCloseBtn.addEventListener('click', closeMobileDirectory);
+			
+			// 监听窗口大小变化
+			window.addEventListener('resize', handleResize);
+			
+			// 初始检测设备类型
+			handleResize();
+			
+			// 页面加载完成
+			setTimeout(() => {
+				homePage.classList.add('fade-in');
+			}, 100);
+		}
+		
+		// 递归生成目录树
+		function buildDirectoryTree(container, nodes, level = 0) {
+			nodes.forEach(node => {
+				if (node.items) { // 如果是文件夹
+					const folderElement = document.createElement('div');
+					folderElement.className = 'folder';
+					if (level > 0) {
+						folderElement.style.marginLeft = `${level * 8}px`;
+					}
+					
+					const folderHeader = document.createElement('div');
+					folderHeader.className = 'folder-header';
+					
+					const folderName = document.createElement('div');
+					folderName.className = 'folder-name';
+					folderName.innerHTML = `<i class="${node.icon}"></i><span>${node.name}</span>`;
+					
+					const folderToggle = document.createElement('i');
+					folderToggle.className = 'folder-toggle fas fa-chevron-down';
+					
+					folderHeader.appendChild(folderName);
+					folderHeader.appendChild(folderToggle);
+					
+					const folderContent = document.createElement('div');
+					folderContent.className = 'folder-content';
+					
+					// 递归构建子节点
+					buildDirectoryTree(folderContent, node.items, level + 1);
+					
+					folderHeader.addEventListener('click', function(e) {
+						e.stopPropagation();
+						folderContent.classList.toggle('expanded');
+						folderToggle.classList.toggle('fa-chevron-down');
+						folderToggle.classList.toggle('fa-chevron-up');
+					});
+					
+					folderElement.appendChild(folderHeader);
+					folderElement.appendChild(folderContent);
+					container.appendChild(folderElement);
+				} else { // 如果是知识点项目
+					const itemElement = document.createElement('div');
+					itemElement.className = 'knowledge-item';
+					itemElement.dataset.id = node.id;
+					itemElement.innerHTML = `<i class="far fa-file-alt"></i> ${node.title}`;
+					if (level > 0) {
+						itemElement.style.marginLeft = `${level * 8}px`;
+					}
+					
+					itemElement.addEventListener('click', function() {
+						document.querySelectorAll('.knowledge-item').forEach(el => {
+							el.classList.remove('active');
+						});
+						this.classList.add('active');
+						showKnowledge(node.id, node.title, node.content);
+						if (isMobile) {
+							closeMobileDirectory();
+						}
+					});
+					
+					container.appendChild(itemElement);
+				}
+			});
+		}
+		
+		// 生成目录
+		function generateDirectory(subject) {
+			directoryList.innerHTML = '';
+			const subjectData = subjectsData[subject];
+			
+			if (!subjectData || !subjectData.folders || subjectData.folders.length === 0) {
+				directoryList.innerHTML = `
+					<div class="empty-state">
+						<i class="fas fa-folder-open"></i>
+						<h3>暂无目录数据</h3>
+						<p>该科目目前没有可用的知识点</p>
+					</div>
+				`;
+				return;
+			}
+			
+			buildDirectoryTree(directoryList, subjectData.folders, 0);
+			
+			// 默认展开第一级文件夹
+			const firstLevelFolders = directoryList.querySelectorAll('.folder');
+			firstLevelFolders.forEach(folder => {
+				const folderContent = folder.querySelector('.folder-content');
+				const folderToggle = folder.querySelector('.folder-toggle');
+				if (folderContent && folderToggle) {
+					folderContent.classList.add('expanded');
+					folderToggle.classList.remove('fa-chevron-down');
+					folderToggle.classList.add('fa-chevron-up');
+				}
+			});
+		}
+		
+		// 切换到科目页面
+		function switchToSubject(subject) {
+			currentSubject = subject;
+			const subjectData = subjectsData[subject];
+			
+			if (!subjectData) {
+				alert('该科目数据不存在');
+				return;
+			}
+			
+			transitionText.textContent = `切换到${subjectData.name}...`;
+			transitionOverlay.style.display = 'flex';
+			setTimeout(() => {
+				transitionOverlay.style.opacity = '1';
+			}, 10);
+			
+			setTimeout(() => {
+				subjectTitle.textContent = subjectData.name;
+				subjectTitle.style.color = subjectData.color;
+				generateDirectory(subject);
+				homePage.style.display = 'none';
+				knowledgePage.style.display = 'block';
+				
+				if (isMobile) {
+					directoryContainer.classList.remove('hidden');
+					directoryContainer.classList.add('mobile-open');
+					isDirectoryVisible = true;
+				} else {
+					directoryContainer.classList.remove('hidden');
+					isDirectoryVisible = true;
+				}
+				
+				// 查找第一个知识点项目
+				function findFirstItem(nodes) {
+					for (const node of nodes) {
+						if (node.items) {
+							const item = findFirstItem(node.items);
+							if (item) return item;
+						} else if (node.id) {
+							return node;
+						}
+					}
+					return null;
+				}
+				
+				if (subjectData.folders.length > 0) {
+					const firstItem = findFirstItem(subjectData.folders);
+					if (firstItem) {
+						showKnowledge(firstItem.id, firstItem.title, firstItem.content);
+						// 激活第一个知识点项目
+						setTimeout(() => {
+							const firstItemElement = directoryList.querySelector(`[data-id="${firstItem.id}"]`);
+							if (firstItemElement) {
+								firstItemElement.classList.add('active');
+							}
+						}, 300);
+					}
+				}
+				
+				transitionOverlay.style.opacity = '0';
+				setTimeout(() => {
+					transitionOverlay.style.display = 'none';
+				}, 300);
+			}, 600);
+		}
+		
+		// 显示知识点内容
+		function showKnowledge(id, title, content) {
+			contentTitle.textContent = title;
+			let bodyContent = `
+				<div class="content-section fade-in">
+					<h3>${title}</h3>
+					${content.split('<p>').map(para => para ? `<p>${para}</p>` : '').join('')}
+				</div>
+			`;
+			contentBody.classList.add('fade-in');
+			contentBody.innerHTML = bodyContent;
+			setTimeout(() => {
+				contentBody.classList.remove('fade-in');
+			}, 500);
+			knowledgeContent.scrollTop = 0;
+		}
+		
+		// 返回首页
+		function goBackToHome() {
+			transitionText.textContent = "返回首页...";
+			transitionOverlay.style.display = 'flex';
+			setTimeout(() => {
+				transitionOverlay.style.opacity = '1';
+			}, 10);
+			setTimeout(() => {
+				homePage.style.display = 'flex';
+				knowledgePage.style.display = 'none';
+				transitionOverlay.style.opacity = '0';
+				setTimeout(() => {
+					transitionOverlay.style.display = 'none';
+				}, 500);
+			}, 600);
+		}
+		
+		// 切换目录显示/隐藏
+		function toggleDirectory() {
+			if (isMobile) {
+				directoryContainer.classList.toggle('mobile-open');
+			} else {
+				isDirectoryVisible = !isDirectoryVisible;
+				directoryContainer.classList.toggle('hidden');
+				knowledgeContent.classList.toggle('hidden-dir');
+				const icon = toggleDirBtn.querySelector('i');
+				if (isDirectoryVisible) {
+					icon.className = 'fas fa-list';
+					toggleDirBtn.title = '隐藏目录';
+				} else {
+					icon.className = 'fas fa-outdent';
+					toggleDirBtn.title = '显示目录';
+				}
+			}
+		}
+		
+		// 切换全屏模式
+		function toggleFullscreen() {
+			isContentFullscreen = !isContentFullscreen;
+			knowledgeContent.classList.toggle('fullscreen');
+			const icon = fullscreenBtn.querySelector('i');
+			if (isContentFullscreen) {
+				icon.className = 'fas fa-compress';
+				fullscreenBtn.title = '退出全屏';
+			} else {
+				icon.className = 'fas fa-expand';
+				fullscreenBtn.title = '全屏显示';
+			}
+		}
+		
+		// 关闭手机端目录
+		function closeMobileDirectory() {
+			directoryContainer.classList.remove('mobile-open');
+		}
+		
+		// 处理窗口大小变化
+		function handleResize() {
+			const wasMobile = isMobile;
+			isMobile = window.innerWidth <= 768;
+			if (wasMobile !== isMobile) {
+				if (isMobile) {
+					directoryContainer.classList.remove('hidden');
+					knowledgeContent.classList.remove('hidden-dir');
+					directoryContainer.classList.remove('mobile-open');
+					const icon = toggleDirBtn.querySelector('i');
+					icon.className = 'fas fa-list';
+					toggleDirBtn.title = '显示目录';
+				} else {
+					directoryContainer.classList.remove('mobile-open');
+					if (isDirectoryVisible) {
+						directoryContainer.classList.remove('hidden');
+						knowledgeContent.classList.remove('hidden-dir');
+					} else {
+						directoryContainer.classList.add('hidden');
+						knowledgeContent.classList.add('hidden-dir');
+					}
+				}
+			}
+		}
+		
+		// 页面加载完成后初始化
+		document.addEventListener('DOMContentLoaded', init);
+	</script>
+</body>
+</html>
